@@ -58,11 +58,11 @@
           v-for="(item, i) in adsList"
           :key="i"
         >
-          <img :src="item.img" alt="" />
+          <img v-lazy="item.img" alt="" />
         </a>
       </div>
       <div class="banner">
-        <a href="/#/product/30"><img src="/imgs/banner-1.png" alt=""/></a>
+        <a href="/#/product/30"><img v-lazy="'/imgs/banner-1.png'" alt=""/></a>
       </div>
     </div>
     <div class="product-box">
@@ -71,7 +71,7 @@
         <div class="wrapper">
           <div class="banner-left">
             <a href="/#/product/35">
-              <img src="/imgs/mix-alpha.jpg" alt="" />
+              <img v-lazy="'/imgs/mix-alpha.jpg'" alt="" />
             </a>
           </div>
           <div class="list-box">
@@ -79,12 +79,14 @@
               <div class="item" v-for="(sub, j) in item" :key="j">
                 <span :class="{ 'new-pro': j % 2 == 0 }">新品</span>
                 <div class="item-img">
-                  <img :src="sub.mainImage" alt="" />
+                  <img v-lazy="sub.mainImage" alt="" />
                 </div>
                 <div class="item-info">
                   <h3>{{ sub.name }}</h3>
                   <p>{{ sub.subtitle }}</p>
-                  <p class="price">{{ sub.price }}元</p>
+                  <p class="price" @click="addCart(sub.id)">
+                    {{ sub.price }}元
+                  </p>
                 </div>
               </div>
             </div>
@@ -98,7 +100,9 @@
       sureText="查看详情"
       btnType="1"
       modalType="middle"
-      :showModal="true"
+      :showModal="showModal"
+      @submit="gotoCart"
+      @cancel="showModal = false"
     >
       <template v-slot:body>
         <p>商品添加成功！</p>
@@ -200,7 +204,8 @@ export default {
           img: '/imgs/ads/ads-4.jpg'
         }
       ],
-      phoneList: []
+      phoneList: [],
+      showModal: false
     }
   },
   mounted() {
@@ -219,6 +224,23 @@ export default {
           res.list = res.list.slice(6, 14)
           this.phoneList = [res.list.slice(0, 4), res.list.slice(4, 8)]
         })
+    },
+    addCart() {
+      this.showModal = true
+      // this.axios
+      //   .post('/carts', {
+      //     productId: id,
+      //     selected: true
+      //   })
+      //   .then(res => {
+      //     console.log(res)
+      //   })
+      //   .catch(() => {
+      //     this.showModal = true
+      //   })
+    },
+    gotoCart() {
+      this.$router.push('/cart')
     }
   }
 }
