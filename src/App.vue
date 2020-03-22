@@ -7,7 +7,25 @@
 <script>
 export default {
   name: 'App',
-  components: {}
+  components: {},
+  data() {},
+  mounted() {
+    this.getUser()
+    this.getCartCount()
+  },
+  methods: {
+    getUser() {
+      this.axios.get('/user').then(res => {
+        this.$store.dispatch('saveUserName', res.username)
+      })
+    },
+    getCartCount() {
+      this.axios.get('/carts/products/sum').then(res => {
+        //保存到vuex
+        this.$store.dispatch('saveCartCount', res)
+      })
+    }
+  }
 }
 </script>
 

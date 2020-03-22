@@ -45,6 +45,7 @@
   </div>
 </template>
 <script>
+import { mapActions } from 'vuex'
 export default {
   name: 'login',
   data() {
@@ -64,20 +65,24 @@ export default {
         })
         .then(res => {
           this.$cookie.set('useId', res.id, { expires: '1M' })
+          // this.$store.dispatch('saveUserName', res.username)
+          //mapActions方式派发
+          this.saveUserName(res.username)
           this.$router.push('/index')
         })
     },
     register() {
       this.axios
         .post('/user/register', {
-          username: 'xm',
+          username: 'xiaomi',
           password: '111',
-          email: 'xm@163.com'
+          email: 'xiaomi@163.com'
         })
         .then(() => {
           alert('注册成功！')
         })
-    }
+    },
+    ...mapActions(['saveUserName'])
   }
 }
 </script>
