@@ -14,3 +14,17 @@ input {
   box-sizing: border-box;
   font-size: 14px;
 }
+.clearfix:before,
+.clearfix:after {
+  content: ' ';
+  display: table;
+}
+.clearfix:after {
+  clear: both;
+}
+.fl {
+  float: left;
+}
+.fr {
+  float: right;
+}
