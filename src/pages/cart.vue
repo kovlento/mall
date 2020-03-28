@@ -13,6 +13,7 @@
               <span
                 class="checkbox"
                 v-bind:class="{ checked: allChecked }"
+                @click="toggleAll"
               ></span
               >全选
             </li>
@@ -28,6 +29,7 @@
                 <span
                   class="checkbox"
                   :class="{ checked: item.productSelected }"
+                  @click="updateCart(item)"
                 ></span>
               </div>
               <div class="item-name">
@@ -39,13 +41,13 @@
               <div class="item-price">{{ item.productPrice }}</div>
               <div class="item-num">
                 <div class="num-box">
-                  <a href="javascript:;">-</a>
+                  <a href="javascript:;" @click="updateCart(item, '-')">-</a>
                   <span>{{ item.quantity }}</span>
-                  <a href="javascript:;">+</a>
+                  <a href="javascript:;" @click="updateCart(item, '+')">+</a>
                 </div>
               </div>
               <div class="item-total">{{ item.productTotalPrice }}</div>
-              <div class="item-del"></div>
+              <div class="item-del" @click="delProduct(item)"></div>
             </li>
           </ul>
         </div>
@@ -59,7 +61,7 @@
           <div class="total fr">
             合计：<span>{{ cartTotalPrice }}</span
             >元
-            <a href="javascript:;" class="btn">去结算</a>
+            <a href="javascript:;" class="btn" @click="order">去结算</a>
           </div>
         </div>
       </div>
@@ -87,15 +89,70 @@ export default {
     this.getCartList()
   },
   methods: {
+    //获取购物车列表
     getCartList() {
       this.axios.get('/carts').then(res => {
-        this.list = res.cartProductVoList || []
-        this.allChecked = res.selectedAll
-        this.cartTotalPrice = res.cartTotalPrice
-        this.checkedNum = this.list.filter(item => {
-          return item.productSelected
-        }).length
+        this.renderData(res)
       })
+    },
+    //点击-、+和复选框更新购物车接口
+    updateCart(item, type) {
+      let quantity = item.quantity,
+        selected = item.productSelected
+      if (type == '-') {
+        if (quantity == 1) {
+          alert('商品至少留一件')
+          return
+        }
+        --quantity
+      } else if (type == '+') {
+        if (quantity > item.productStock) {
+          alert('商品数量不能超过库存')
+          return
+        }
+        ++quantity
+      } else {
+        selected = !item.productSelected
+      }
+      this.axios
+        .put(`/carts/${item.productId}`, {
+          quantity,
+          selected
+        })
+        .then(res => {
+          this.renderData(res)
+        })
+    },
+    //全选
+    toggleAll() {
+      let url = this.allChecked ? '/carts/unSelectAll' : '/carts/selectAll'
+      this.axios.put(url).then(res => {
+        this.renderData(res)
+      })
+    },
+    //删除商品
+    delProduct(item) {
+      this.axios.delete(`/carts/${item.productId}`).then(res => {
+        this.renderData(res)
+      })
+    },
+    //购物车结算
+    order() {
+      let isCheck = this.list.every(item => !item.productSelected)
+      if (isCheck) {
+        alert('请选择一件商品')
+      } else {
+        this.$router.push('/order/confim')
+      }
+    },
+    //重新渲染购物车列表
+    renderData(res) {
+      this.list = res.cartProductVoList || []
+      this.allChecked = res.selectedAll
+      this.cartTotalPrice = res.cartTotalPrice
+      this.checkedNum = this.list.filter(item => {
+        return item.productSelected
+      }).length
     }
   }
 }
