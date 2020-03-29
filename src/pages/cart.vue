@@ -143,7 +143,7 @@ export default {
       if (isCheck) {
         this.$message.warning('请选择一件商品')
       } else {
-        this.$router.push('/order/confim')
+        this.$router.push('/order/confirm')
       }
     },
     //重新渲染购物车列表
